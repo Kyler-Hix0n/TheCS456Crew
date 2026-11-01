@@ -5,7 +5,7 @@
 ### part 2:
 - Updating Monitor.py and server.py
 - Worked on getting the failover mechanism finished for early testing
-- Architecture design diagram 
+- Architecture design diagram and redundancy explanation 
   
 ## Kyle James: 
 - created the monitor.py file. Uses passive monitoring on port 8000 to track unidirectional heartbeats from the firewall agent, as well as added ANSI color-coded terminal interface to provide clear real-time tracking.
