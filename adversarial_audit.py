@@ -1,36 +1,3 @@
-"""
-adversarial_audit.py  --  Attack Scenario 2 for MP1.1 Fault Detection
-
-Audits the TRUST BOUNDARY of the Passive Redundancy (Warm Standby +
-Checkpointing) design. The Primary firewall periodically writes its BLACKLIST
-to a plaintext file (server_state.json) via checkpointing.py. That file is:
-
-    - unauthenticated  (no signature / HMAC / integrity check)
-    - unencrypted      (plain JSON on local disk)
-    - trusted blindly  (the Secondary loads it verbatim on failover)
-
-load_state() in checkpointing.py only guards against JSON *corruption*
-(a decode error). It does NOT verify that the contents are legitimate. So a
-well-formed-but-poisoned file passes every check and is loaded as gospel.
-
-This script demonstrates the integrity gap: an attacker who can write to the
-checkpoint file controls the Secondary's entire policy after failover. We use
-that to make the Secondary block a site that was never supposed to be blocked
-(llamallama.com), i.e. a self-inflicted denial of service that survives a crash.
-
-Scenario (all local, your own machine):
-    1. Start the Primary:     python firewall.py PRIMARY 8001
-       (checkpointing.py begins writing server_state.json every few seconds)
-    2. Run this audit:        python adversarial_audit.py
-       (waits for the file, then overwrites it with a poisoned blacklist)
-    3. Crash / kill the Primary. The Monitor spawns the Secondary on 8002.
-    4. The Secondary calls load_state(), loads the POISONED blacklist, and
-       now blocks llamallama.com even though the Primary never did.
-
-Fix (what the write-up should recommend): sign the checkpoint (e.g. HMAC with a
-key the attacker can't read), restrict file permissions, and have load_state()
-reject any state that fails integrity verification instead of trusting it.
-"""
 import json
 import os
 import time
@@ -109,7 +76,7 @@ def hold_poison():
 
 def main():
     print("=" * 68)
-    print(" MP1.1 Adversarial Audit -- Scenario 2: Checkpoint Poisoning")
+    print(" MP1.2 Adversarial Audit -- Scenario 2: Checkpoint Poisoning")
     print("=" * 68)
     wait_for_checkpoint()
     show_current_state()

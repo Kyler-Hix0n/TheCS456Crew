@@ -1,19 +1,3 @@
-"""
-heartbeat_spoofer.py  --  Attack demo for MP1.1 Fault Detection
-
-Demonstrates that the Vulcan Monitor trusts ANY UDP packet containing the
-bytes b"HEARTBEAT" on port 8000, from ANY source. It never authenticates the
-sender, so an attacker can forge the firewall's liveness signal.
-
-Scenario:
-    1. Start monitor.py           (watches for heartbeats)
-    2. Start firewall.py          (real heartbeats begin)
-    3. Kill firewall.py           (the real heartbeat stops)
-    4. Run this spoofer           (monitor keeps thinking the firewall is UP)
-
-The firewall can be dead and silently NOT inspecting traffic, while the
-monitor's dashboard still reports a healthy, protected network.
-"""
 import socket
 import time
 
