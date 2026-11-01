@@ -87,5 +87,6 @@ if __name__ == '__main__':
     # NEW BLOCK: If this is the PRIMARY node, start the checkpointing daemon to save state periodically
     if ROLE == "PRIMARY":
         threading.Thread(target=checkpointing.state_saver_daemon, args=(BLACKLIST,), daemon=True).start()
-        
-        app.run(host=FIREWALL_IP, port=FIREWALL_PORT)
+
+    # Both PRIMARY and SECONDARY must serve verdicts, so run the app for either role.
+    app.run(host=FIREWALL_IP, port=FIREWALL_PORT)

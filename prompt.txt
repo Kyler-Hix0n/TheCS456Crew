@@ -1,0 +1,41 @@
+okay so, sounds like we are all on the same page for passive implementation. SOOOO this is what we will need to do 
+
+
+create this new file:
+checkpointing.py (Tasks 1 & 2 - State Sync):
+to handle state preservation. It runs a background thread on the Primary firewall that saves our current BLACKLIST array to a local file (firewall_state.json) every n seconds. This way, when the Secondary firewall boots up, it just reads this file and loads the exact same blacklist the Primary had right before it crashed.
+
+firewall.py (Tasks 1 & 2 - Replica Process):
+We need to update our firewall script to accept command-line arguments so it knows whether it’s running as the PRIMARY (on port 8001) or the SECONDARY (on port 8002). We also need to modify the UDP heartbeat to include its role (e.g., b"HEARTBEAT:PRIMARY") so the monitor always knows exactly which node it's talking to.
+
+monitor.py (Task 3 - Automated Failover):
+Instead of just printing a red alert when the primary dies like in Part 1, our monitor will now need to actually handle the recovery. We need to add a start_secondary_node() function so that after 3 missed heartbeats, it uses Python's subprocess module to automatically spin up a new firewall.py instance on port 8002. We also made sure it checks the role tag in the heartbeats to prevent "split-brain" syndrome, meaning it will safely ignore any delayed packets from a dead primary node.
+
+server.py (The Client):
+We could update the web server to act as a basic load balancer. Instead of hardcoding it to only ask port 8001 for a firewall verdict, it could iterate through a list of FIREWALL_URLS. If port 8001 (Primary) times out, it seamlessly routes the client's request to port 8002 (Secondary) without dropping the connection.
+
+adversarial_audit.py (Task 4 - Attack Scenario 2):
+
+Thinking attack Scenario 2
+It waits for the firewall_state.json file to be created by the Primary, and then overwrites it. It injects a "poisoned" blacklist that blocks our favorite site, llamallama.com. When the primary crashes and the secondary takes over, the secondary blindly loads this poisoned file. This successfully demonstrates that local file tampering is a major security risk for Passive Redundancy systems. 
+as like, a proposal for what we could do if we went passive
+So then... the split would be
+
+Teammate 1: State & Firewall ---> checkpointing.py and firewall.py
+
+Get the state saving/loading to work. Test that when you run firewall.py, the JSON file appears. Use the /hack endpoint (from Part 1) to add a new IP to the blacklist, and verify it shows up in the JSON file. Ensure the firewall can boot as a secondary node using python firewall.py SECONDARY 8002.
+
+
+Teammate 2: Automation & Routing ---> monitor.py and server.py
+
+Get the failover mechanism working. Start the Monitor and Primary firewall, then manually kill the Primary firewall. Verify that the Monitor detects the crash and successfully spawns the Secondary firewall on port 8002. Ensure the web server (server.py) successfully routes traffic to the new port without dropping client access.
+
+
+Teammate 3: attacker/ advisary ---> adversarial_audit.py
+
+Run the attack script while the Primary is running to corrupt the JSON file. Trigger a crash and document how the Secondary firewall boots up with the corrupted state (blocking the good website).
+
+
+
+
+I AM TEAMMATE 3
