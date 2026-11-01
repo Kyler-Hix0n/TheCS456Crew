@@ -20,7 +20,7 @@
 - implemented the spoofed heartbeat status to trick monitor into thinking the server is still protected.
 
 ### part 2:
-- words
+- created adversarial_audit.py, which attacks the checkpointing trust boundary. It waits for the Primary to create server_state.json, reads the current blacklist, then keeps overwriting the file every 0.5s (faster than the Primary's 3s checkpoint) with a poisoned blacklist that adds llamallama.com's IP. When the Primary crashes and the Monitor fails over, the Secondary loads the poisoned file and blocks llamallama.com, since load_state() never checks creditability.
 
 
 ### Video Demo
