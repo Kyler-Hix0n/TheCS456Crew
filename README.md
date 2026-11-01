@@ -3,7 +3,7 @@
 ### Critical Service Process: 
 - firewall.py
 -  non-deterministic crash, 5% chance for a crash to occur when accessing a website
--  lines 35-38 of firewall.py
+-  lines 53-56 of firewall.py (updated for part 2)
 
 ### Heartbeat Monitor Process: 
 - monitor.py
