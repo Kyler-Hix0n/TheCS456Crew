@@ -8,11 +8,12 @@
 - Architecture design diagram and redundancy explanation 
   
 ## Kyle James: 
-- created the monitor.py file. Uses passive monitoring on port 8000 to track unidirectional heartbeats from the firewall agent, as well as added ANSI color-coded terminal interface to provide clear real-time tracking.
+- created monitor.py file. Uses passive monitoring on port 8000 to track unidirectional heartbeats from the firewall agent, as well as added ANSI color-coded terminal interface to provide clear real-time tracking.
 - created doc for team submssion
   
 ### part 2:
-- words
+- created checkpointing.py file to periodically export the blacklist to a local JSON file so the state survives a crash.
+- updated firewall.py so that it now uses command line arguments to determine if it is the primary or backup node, then updates the heartbeat payload to include its role, and uses the new checkpointing module to load and save the blacklist. 
   
 ## Kyler Hixon:
 - created the redPajama.py file to take down the firewall
