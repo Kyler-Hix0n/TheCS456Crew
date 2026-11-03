@@ -24,11 +24,15 @@
   
 ### State Sync/Checkpointing module:
 - File: checkpointing.py
-- Update: New module that snapshots the firewall's operational state (the active blacklist) to server_state.json so it survives a process crash. Then it runs state_saver_daemon in a background thread, rewriting the checkpoint every 3 seconds. 
+- Implementation: A checkpointing file that periodically exports the blacklist to a local JSON file so the state survives a crash.
+- File: firewall.py
+- Update: The firewall now uses command line arguments to determine if it is the primary or backup node, then updates the heartbeat payload to include its role, and uses the checkpointing module to load and save the blacklist.
+
 
 ### updated Monitor Failover Controller:
 - File: monitor.py
 - Update: The monitor now manages the automated failover. If it registers 3 consecutive missed heartbeats from the primary node, it utilizes Python's subprocess module to automatically spawn the secondary firewall instance on port 8002. It also verifies the role embedded in the heartbeats to prevent split-brain conflicts from delayed primary packets.
+
 
 ### adversarial Audit script:
 - File: adversarial_audit.py
