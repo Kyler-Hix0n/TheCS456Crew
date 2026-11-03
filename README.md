@@ -8,9 +8,11 @@
 ### Heartbeat Monitor Process: 
 - monitor.py
 - triggers explicit failure alerts upon a crash.
+
 ### Adversarial Audit Script: 
 - redPajama.py 
 - A standalone script or utility designed to attempt heartbeat spoofing, message replay, or false liveness injection against the monitor.
+
 ### Role Distribution: 
 - CONTRIBUTIONS.md 
 - Includes individual contributions and link to the unlisted youtube video
@@ -21,10 +23,13 @@
 - Update: The firewall script was modified to accept command-line arguments for its role and port (e.g., python firewall.py SECONDARY 8002). It now includes its specific role in the UDP heartbeat (b"HEARTBEAT:PRIMARY" or b"HEARTBEAT:SECONDARY") so the monitor can accurately track which node is transmitting.
   
 ### State Sync/Checkpointing module:
-
+- File: checkpointing.py
+- Update: New module that snapshots the firewall's operational state (the active blacklist) to server_state.json so it survives a process crash. Then it runs state_saver_daemon in a background thread, rewriting the checkpoint every 3 seconds. 
 
 ### updated Monitor Failover Controller:
 - File: monitor.py
 - Update: The monitor now manages the automated failover. If it registers 3 consecutive missed heartbeats from the primary node, it utilizes Python's subprocess module to automatically spawn the secondary firewall instance on port 8002. It also verifies the role embedded in the heartbeats to prevent split-brain conflicts from delayed primary packets.
 
 ### adversarial Audit script:
+- File: adversarial_audit.py
+- Update: New audit script for Attack Scenario 2 (Checkpoint Poisoning). It waits for the primary to create server_state.json, then repeatedly overwrites it (every 0.5s, faster than the primary's checkpoint writes) with a well-formed but unauthorized blacklist that adds llamallama.com's IP (10.0.99.99) and a forged HMAC tag. Without signing, the secondary would load this poisoned state after failover and block llamallama.com. With the HMAC check in checkpointing.py, the forged checkpoint is rejected and llamallama.com stays reachable.

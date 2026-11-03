@@ -26,3 +26,6 @@
 ### Video Demo
 - https://youtu.be/GqX8A49K10c
 - NEW VIDEO WITH UPDATED ATTACKER https://youtu.be/2bhPfWA3cJo
+
+### Part 2 Video
+- https://www.youtube.com/watch?v=CIz7hTpjLM4

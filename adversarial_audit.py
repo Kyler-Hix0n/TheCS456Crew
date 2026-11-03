@@ -47,8 +47,11 @@ def show_current_state():
 
 
 def poison_checkpoint():
-    """Overwrite the checkpoint with a well-formed but unauthorized blacklist."""
-    payload = {STATE_KEY: POISONED_BLACKLIST}
+    """Overwrite the checkpoint with a well-formed but unauthorized blacklist.
+
+    The attacker doesn't know the firewall's HMAC secret, so it can only write an
+    unsigned (or forged) checkpoint -- which the hardened load_state() rejects."""
+    payload = {STATE_KEY: POISONED_BLACKLIST, "HMAC": "0" * 64}  # forged tag
     with open(CHECKPOINT_FILE, "w") as f:
         json.dump(payload, f)
 
@@ -81,9 +84,11 @@ def main():
     wait_for_checkpoint()
     show_current_state()
     hold_poison()
-    print("[AUDIT] If the Secondary came up, llamallama.com is now BLOCKED.")
-    print("[AUDIT] Takeaway: unauthenticated local state == single point of")
-    print("[AUDIT] compromise for passive redundancy. Sign & verify the file.")
+    print("[AUDIT] The poisoned file carries no valid HMAC signature (we don't")
+    print("[AUDIT] have the nodes' secret key), so the Secondary's load_state()")
+    print("[AUDIT] rejects it and rolls back to the default blacklist.")
+    print("[AUDIT] Result: ATTACK MITIGATED -- llamallama.com is still ALLOWED.")
+    print("[AUDIT] (Without signing, the Secondary would have blocked it.)")
 
 
 if __name__ == "__main__":
